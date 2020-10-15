@@ -6,6 +6,7 @@ import {
   useRouteMatch,
   useHistory
 } from "react-router-dom"
+import  { useField } from './hooks'
 
 const Menu = () => {
   const padding = {
@@ -60,21 +61,28 @@ const Footer = () => (
 )
 
 const CreateNew = (props) => {
-  const [content, setContent] = useState('')
-  const [author, setAuthor] = useState('')
-  const [info, setInfo] = useState('')
   const history = useHistory()
+
+  const content = useField('text')
+  const author = useField('text')
+  const info = useField('text')
 
   const handleSubmit = (e) => {
     e.preventDefault()
     props.addNew({
-      content,
-      author,
-      info,
+      content: content.value,
+      author: author.value,
+      info: info.value,
       votes: 0
     })
     props.setNotification(`A new anecdote '${content}' created!`)
     history.push('/')
+  }
+
+  const resetFields = () => {
+    content.reset()
+    author.reset()
+    info.reset()
   }
 
   return (
@@ -83,17 +91,18 @@ const CreateNew = (props) => {
       <form onSubmit={handleSubmit}>
         <div>
           content
-          <input name='content' value={content} onChange={(e) => setContent(e.target.value)} />
+          <input {...content.required} />
         </div>
         <div>
           author
-          <input name='author' value={author} onChange={(e) => setAuthor(e.target.value)} />
+          <input {...author.required} />
         </div>
         <div>
           url for more info
-          <input name='info' value={info} onChange={(e)=> setInfo(e.target.value)} />
+          <input {...info.required} />
         </div>
-        <button>create</button>
+        <input type="submit" value='create' />
+        <input type="button" value='reset' onClick={resetFields} />
       </form>
     </div>
   )
@@ -101,7 +110,6 @@ const CreateNew = (props) => {
 }
 
 const Anecdote = ({ anecdote }) => {
-  console.log(anecdote)
   return(
     <div>
       <h2>{anecdote.content}</h2>
@@ -164,7 +172,6 @@ const App = () => {
 
     setAnecdotes(anecdotes.map(a => a.id === id ? voted : a))
   }
-
   const match = useRouteMatch("/anecdotes/:id")
   const anecdote = match 
     ? anecdoteById(match.params.id)
