@@ -24,7 +24,6 @@ const BlogList = ({ user }) => {
       dispatch(setNotification(`you deleted '${blogToRemove.title}'`, 5))
     }
   }
-  console.log(blogs)
   return(
     <div>
       {blogs && blogs.map(blog =>
