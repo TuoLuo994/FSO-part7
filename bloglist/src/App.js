@@ -4,6 +4,8 @@ import BlogList from './components/BlogList'
 import Togglable from './components/Togglable'
 import NewBlog from './components/NewBlog'
 import UserList from './components/UserList'
+import UserView from './components/UserView'
+import BlogView from './components/BlogView'
 import { setNotification } from './reducers/notificationReducer'
 import { createBlog, initializeBlogs } from './reducers/blogReducer'
 import { setUser, initUser } from './reducers/userReducer'
@@ -12,11 +14,19 @@ import getAll from './services/users'
 
 import {
   BrowserRouter as Router,
-  Switch, Route, //Link
+  Switch, Route, Link
 } from 'react-router-dom'
 
 import loginService from './services/login'
 import storage from './utils/storage'
+
+import {
+  Container,
+  TextField,
+  Button,
+  AppBar,
+  Toolbar
+} from '@material-ui/core'
 
 const App = () => {
   const [username, setUsername] = useState('')
@@ -26,10 +36,12 @@ const App = () => {
   const blogFormRef = React.createRef()
   const dispatch = useDispatch()
 
-  useEffect(async () => {
-    const u = await getAll()
-    console.log(u)
-    setUsers(u)
+  useEffect(() => {
+    const get = async () => {
+      const u = await getAll()
+      setUsers(u)
+    }
+    get()
   }, [])
 
   useEffect(() => {
@@ -87,51 +99,78 @@ const App = () => {
 
         <form onSubmit={handleLogin}>
           <div>
-            username
-            <input
+            <TextField
+              label='username'
               id='username'
               value={username}
               onChange={({ target }) => setUsername(target.value)}
             />
           </div>
           <div>
-            password
-            <input
+            <TextField
+              label='password'
               id='password'
+              type='password'
               value={password}
               onChange={({ target }) => setPassword(target.value)}
             />
           </div>
-          <button id='login'>login</button>
+          <Button
+            variant='contained'
+            color='primary'
+            type='submit'>
+            login
+          </Button>
         </form>
       </div>
     )
   }
 
   return (
-    <Router>
-      <h2>blogs</h2>
-      <p>
-        <span>
-          {user.name} logged in
-        </span>
-        <button onClick={handleLogout}>
-          logout
-        </button>
-        <Notification />
-      </p>
-      <Switch>
-        <Route path="/users">
-          <UserList users = {users} />
-        </Route>
-        <Route path='/'>
-          <Togglable buttonLabel='create new blog' ref={blogFormRef}>
-            <NewBlog newBlog={newBlog} />
-          </Togglable>
-          <BlogList user={ user } />
-        </Route>
-      </Switch>
-    </Router>
+    <Container>
+      <Router>
+        <AppBar>
+          <Toolbar>
+            <Button color="inherit" component={Link} to="/">
+              home
+            </Button>
+            <Button color="inherit" component={Link} to="/blogs">
+              blogs
+            </Button>
+            <Button color="inherit" component={Link} to="/users">
+              users
+            </Button>
+          </Toolbar>
+        </AppBar>
+        <h2>blogs</h2>
+        <div>
+          <span>
+            {user.name} logged in
+          </span>
+          <button onClick={handleLogout}>
+            logout
+          </button>
+          <Notification />
+        </div>
+        <Switch>
+          <Route path="/users/:id">
+            <UserView users = {users} />
+          </Route>
+          <Route path="/users">
+            <UserList users = {users} />
+          </Route>
+          <Route path="/blogs/:id">
+            <BlogView />
+          </Route>
+          <Route path='/'>
+            <Togglable buttonLabel='create new blog' ref={blogFormRef}>
+              <NewBlog newBlog={newBlog} />
+            </Togglable>
+            <BlogList user={ user } />
+          </Route>
+        </Switch>
+      </Router>
+    </Container>
   )
 }
 

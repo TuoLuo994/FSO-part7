@@ -12,9 +12,9 @@ const NewBlog = () => {
 
   const handleNewBlog = (event) => {
     event.preventDefault()
-
+    const comments = []
     dispatch(createBlog({
-      title, author, url
+      title, author, url, comments
     }))
     dispatch(setNotification(`new blog '${title}'`, 5))
 

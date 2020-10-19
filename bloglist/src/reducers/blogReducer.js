@@ -13,6 +13,8 @@ const reducer = (state = [], action) => {
     return state.filter(a => a.id!==action.data)
   case 'LIKE':
     return state.map(a => a.id===action.data.id ? action.data : a).sort(byLikes)
+  case 'COMMENT':
+    return state.map(a => a.id===action.data.id ? action.data : a).sort(byLikes)
   default:
     return state
   }
@@ -59,7 +61,17 @@ export const deleteBlog = (blog) => {
       data
     })
   }
+}
 
+export const commentBlog = (blog, comment) => {
+  return async dispatch => {
+    const toComment = { ...blog, comments: blog.comments.concat(comment) }
+    const data = await blogService.comment(comment, toComment)
+    dispatch({
+      type: 'COMMENT',
+      data
+    })
+  }
 }
 
 export default reducer
